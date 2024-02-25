@@ -6,5 +6,5 @@ const store1 = configureStore({
         task: taskReducer,
     },
 });
-export const server = "https://tms-test.onrender.com";
+export const server = "https://tms-45m0.onrender.com";
 export default store1;
