@@ -23,6 +23,24 @@ export const createTask = (title, description, dueDate, isCompleted) => async (d
     }
 };
 
+export const updateTask = (id, title, description, dueDate, isCompleted) => async (dispatch) => {
+
+  try {
+      dispatch({ type: "updateTaskRequest" });
+
+      const { data } = await axios.put(`${server}/api/v1/task/${id}`,
+          { title, description, dueDate, isCompleted }, {
+          headers: {
+              "Content-Type": "application/json"
+          }, withCredentials: true,
+      });
+      dispatch({ type: "updateTaskSuccess", payload: data.message });
+
+  } catch (error) {
+      dispatch({ type: "updateTaskFail", payload: error.response.data.message })
+  }
+};
+
 export const deleteTask = (id) => async (dispatch) => {
     try {
       const config = {

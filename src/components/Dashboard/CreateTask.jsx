@@ -22,8 +22,6 @@ const CreateTask = ({ user }) => {
     await dispatch(createTask(title, description, dueDate, isCompleted));
     navigate("/dashboard");
     dispatch(loadUser());
-    // setTimeout(() => {
-    // }, 600);
   };
   const navigate = useNavigate();
 

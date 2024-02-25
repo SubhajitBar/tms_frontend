@@ -1,7 +1,11 @@
 import React from "react";
 
 const Loader = () => {
-  return <div>Loading.......</div>;
+  return (
+    <div className="flex justify-center bg-gray-200 items-center h-screen">
+      <div className="animate-spin rounded-full h-20 w-20 border-t-2 border-b-2 border-indigo-500"></div>
+    </div>
+  );
 };
 
 export default Loader;

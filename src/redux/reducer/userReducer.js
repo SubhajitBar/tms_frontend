@@ -1,39 +1,45 @@
 import { createReducer } from "@reduxjs/toolkit";
 
-const initialState = {
-    loading: true,
-};
+export const taskReducer = createReducer({}, {
 
-export const taskReducer = createReducer({},{
-    
     createTaskRequest: state => {
         state.loading = true;
-      },
-      createTaskSuccess: (state, action) => {
+    },
+    createTaskSuccess: (state, action) => {
         state.loading = false;
         state.message = action.payload;
-      },
-      createTaskFail: (state, action) => {
+    },
+    createTaskFail: (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      },
+    },
 
 
-      deleteTaskRequest: state => {
+    updateTaskRequest: (state) => {
         state.loading = true;
-      },
-      deleteTaskSuccess: (state, action) => {
+    },
+    updateTaskSuccess: (state, action) => {
         state.loading = false;
         state.message = action.payload;
-      },
-      deleteTaskFail: (state, action) => {
+    },
+    updateTaskFail: (state, action) => {
         state.loading = false;
         state.error = action.payload;
-      },
-    
-   
-   
-   
+    },
+
+    deleteTaskRequest: state => {
+        state.loading = true;
+    },
+    deleteTaskSuccess: (state, action) => {
+        state.loading = false;
+        state.message = action.payload;
+    },
+    deleteTaskFail: (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+    },
+
+
     clearError: (state) => {
         state.error = null;
     },
@@ -52,7 +58,6 @@ export const loginReducer = createReducer({}, {
     loginSuccess: (state, action) => {
         state.loading = false;
         state.isAuthenticated = true;
-        // state.user = action.payload.user;
         state.message = action.payload;
     },
     loginFail: (state, action) => {
@@ -82,7 +87,6 @@ export const loginReducer = createReducer({}, {
     registerSuccess: (state, action) => {
         state.loading = false;
         state.isAuthenticated = true;
-        // state.user = action.payload.user;
         state.message = action.payload;
 
     },
@@ -105,7 +109,7 @@ export const loginReducer = createReducer({}, {
         state.isAuthenticated = false;
         state.error = action.payload;
     },
-    
+
 
     clearError: (state) => {
         state.error = null;

@@ -1,17 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-// import { useLoginMutation } from "../../redux/api/userAPI";
-import toast from "react-hot-toast";
-// import { loginSuccess } from "../../redux/reducer/userSlice";
-import { Link, useNavigate } from "react-router-dom";
-import { loadUser, login } from "../../redux/api/user";
+import React, { useState } from "react";
+import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
+import { login } from "../../redux/api/user";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   const dispatch = useDispatch();
-  // const { loading, message, error } = useSelector((state) => state.login);
   const submitHandler = (e) => {
     e.preventDefault();
     dispatch(login(email, password));

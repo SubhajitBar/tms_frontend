@@ -1,21 +1,31 @@
-import React from "react";
-import { Link, useNavigate } from "react-router-dom";
+import React, { useState } from "react";
+import { Link} from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { loadUser, logout } from "../../redux/api/user";
 import { useEffect } from "react";
 import toast from "react-hot-toast";
-import { deleteTask } from "../../redux/api/task";
+import { deleteTask, updateTask } from "../../redux/api/task";
 import Loader from "../Loader/Loader";
 
 const Dashboard = ({ user }) => {
   const dispatch = useDispatch();
+  const [showModal, setShowModal] = useState(false);
+  const [taskID, setTaskID] = useState(null);
+  const [taskComplitionStatus, setTaskComplitionStatus] = useState(null);
+  const [taskTitle, setTaskTitle] = useState(null);
+
   const { loading, error, message } = useSelector((state) => state.task);
+
+  const openModalHandler = (id, title, isCompleted) => {
+    setTaskID(id);
+    setTaskTitle(title);
+    setTaskComplitionStatus(isCompleted);
+    setShowModal(true);
+  };
 
   const deleteHandler = async (id) => {
     await dispatch(deleteTask(id));
     dispatch(loadUser());
-    // setTimeout(() => {
-    // }, 600);
   };
 
   useEffect(() => {
@@ -29,9 +39,6 @@ const Dashboard = ({ user }) => {
     }
   }, [dispatch, error, message]);
 
-  // useEffect(()=>{
-  //   dispatch(loadUser());
-  // },[dispatch])
   return (
     <>
       {loading ? (
@@ -51,12 +58,18 @@ const Dashboard = ({ user }) => {
                   user.tasks &&
                   user.tasks.map((item, idx) => (
                     <div className="p-4 md:w-1/3" key={idx}>
-                      <div className="flex rounded-lg h-full bg-gray-100 p-8 flex-col">
-                        <h2 className="mb-3 text-gray-900 text-lg title-font font-medium">
+                      <div className="flex rounded-lg h-fit bg-gray-100 p-8 flex-col">
+                        <h2
+                          className="mb-3 text-gray-900 text-lg title-font font-medium"
+                          style={{ overflowWrap: "break-word" }}
+                        >
                           {item.title}
                         </h2>
                         <div className="flex-grow">
-                          <p className="leading-relaxed text-base">
+                          <p
+                            className="leading-relaxed text-base"
+                            style={{ overflowWrap: "break-word" }}
+                          >
                             {item.description}
                           </p>
                           <p className="leading-relaxed text-base">
@@ -66,10 +79,27 @@ const Dashboard = ({ user }) => {
                             {item.isCompleted ? "Completed" : "Not Completed"}
                           </p>
 
-                          <div className="w-full flex justify-start">
-                            <button className="flex mr-4 mt-4 text-white bg-indigo-400 border-0 px-4 py-2 focus:outline-none hover:bg-indigo-500 rounded text-lg">
+                          <div className="w-full flex justify-start items-start">
+                            <button
+                              onClick={() =>
+                                openModalHandler(
+                                  item._id,
+                                  item.title,
+                                  item.isCompleted
+                                )
+                              }
+                              className="flex mr-4 mt-4 text-white bg-indigo-400 border-0 px-4 py-2 focus:outline-none hover:bg-indigo-500 rounded text-lg"
+                            >
                               Edit
                             </button>
+                            {showModal ? (
+                              <Modal
+                                setShowModal={setShowModal}
+                                taskID={taskID}
+                                taskTitle={taskTitle}
+                                taskComplitionStatus={taskComplitionStatus}
+                              />
+                            ) : null}
                             <button
                               onClick={() => deleteHandler(item._id)}
                               className="flex mr-4 mt-4 text-white bg-indigo-400 border-0 px-4 py-2 focus:outline-none hover:bg-indigo-500 rounded text-lg"
@@ -121,8 +151,7 @@ export const Header = ({ user }) => {
           >
             Create Task
           </Link>
-          {/* <Link to="/dashboard" className="mr-5 hover:text-gray-900">Third Link</Link>
-          <Link to="/dashboard" className="mr-5 hover:text-gray-900">Fourth Link</Link> */}
+          
         </nav>
         <button
           onClick={logoutHandler}
@@ -132,5 +161,130 @@ export const Header = ({ user }) => {
         </button>
       </div>
     </header>
+  );
+};
+
+const Modal = ({
+  setShowModal,
+  taskID,
+  taskTitle,
+  taskComplitionStatus,
+}) => {
+  const [title, setTitle] = useState("");
+  const [description, setDescription] = useState("");
+  const [dueDate, setDueDate] = useState("");
+  const [isCompleted, setIsCompleted] = useState(false);
+
+  const dispatch = useDispatch();
+  const submitHandler = async (e) => {
+    e.preventDefault();
+    await dispatch(
+      updateTask(taskID, title, description, dueDate, isCompleted)
+    );
+    dispatch(loadUser());
+  };
+  return (
+    <>
+      <div className="justify-center items-center flex overflow-x-hidden overflow-y-hidden fixed inset-0 z-50 outline-none focus:outline-none">
+        <div className="relative w-auto my-6 mx-auto max-w-3xl">
+          {/*content*/}
+
+          <div className="border-0 rounded-lg shadow-lg relative flex flex-col w-full bg-white outline-none focus:outline-none">
+            <div className="relative p-6 flex-auto">
+              <form
+                onSubmit={submitHandler}
+                className=" bg-gray-100 rounded-lg p-8 flex flex-col m-auto w-full mt-10 md:mt-0"
+              >
+                <h2 className="text-gray-900 text-lg font-medium title-font mb-3">
+                  Edit - {taskTitle}
+                </h2>
+                <div className="relative mb-2">
+                  <label
+                    htmlFor="title"
+                    className="leading-7 text-sm text-gray-600"
+                  >
+                    Title
+                  </label>
+                  <input
+                    type="text"
+                    id="title"
+                    name="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="w-full bg-white rounded border border-gray-300 text-base outline-none text-gray-700 py-1 px-3 leading-8"
+                  />
+                </div>
+                <div className="relative mb-2">
+                  <label
+                    htmlFor="description"
+                    className="leading-7 text-sm text-gray-600"
+                  >
+                    Description
+                  </label>
+                  <textarea
+                    type="text"
+                    id="description"
+                    name="description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    className="w-full bg-white rounded border border-gray-300 text-base outline-none text-gray-700 py-1 px-3 leading-8"
+                  />
+                </div>
+                <div className="relative mb-2">
+                  <label
+                    htmlFor="date"
+                    className="leading-7 text-sm text-gray-600"
+                  >
+                    Due Date
+                  </label>
+                  <input
+                    type="date"
+                    id="date"
+                    name="date"
+                    value={dueDate}
+                    onChange={(e) => setDueDate(e.target.value)}
+                    className=" w-full bg-white rounded border border-gray-300 text-base outline-none text-gray-700 py-1 px-3 leading-8"
+                  />
+                </div>
+                <div className="relative mb-4">
+                  <label
+                    htmlFor="check"
+                    className="leading-7 text-sm text-gray-600 "
+                  >
+                    {taskComplitionStatus === false
+                      ? "Completed"
+                      : "Task already completed"}
+                  </label>
+                  {taskComplitionStatus === false ? (
+                    <input
+                      type="checkbox"
+                      id="check"
+                      name="check"
+                      checked={isCompleted}
+                      onChange={(e) => setIsCompleted(e.target.checked)}
+                      className="mx-4 cursor-pointer"
+                    />
+                  ) : null}
+                </div>
+                <button
+                  type="submit"
+                  className="text-white bg-indigo-500 border-0 py-2 px-8 focus:outline-none hover:bg-indigo-600 rounded text-lg"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => setShowModal(false)}
+                  type="button"
+                  className="text-black bg-gray-300 border-0 my-3 py-2 px-8 focus:outline-none hover:bg-gray-400 rounded text-lg"
+                >
+                  Cancel
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="opacity-25 fixed inset-0 z-40 bg-black"></div>
+    </>
   );
 };
